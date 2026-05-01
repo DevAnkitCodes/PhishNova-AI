@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // [RENDER UPDATE] Replace with your actual Render URL
     // Keep the local URL commented out so you can switch back for testing
-    const BASE_URL = 'https://your-phishnova-app.onrender.com'; 
+    const BASE_URL = 'https://yoururl-add-here'; 
     // const BASE_URL = 'http://127.0.0.1:5000';
 
     // 1. Backend Status Check

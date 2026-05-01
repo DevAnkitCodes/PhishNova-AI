@@ -3,7 +3,7 @@
 // ============================================================
 
 // 🔁 REPLACE with your actual Render instance URL
-const BASE_URL = "https://your-phishnova-app.onrender.com"; 
+const BASE_URL = "https://yoururl-add-here"; 
 const API_URL = `${BASE_URL}/analyze`;
 
 /**
