@@ -1,0 +1,25 @@
+# Python bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments & Secret Keys
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Database & Local Logs
+# This ensures your personal scan history and local SQLite files aren't leaked
+instance/
+backend/instance/
+*.db
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project Specifics
+# Keeps your model files clean if you plan to move them to cloud storage
+# models/*.pkl

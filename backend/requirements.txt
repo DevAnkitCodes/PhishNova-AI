@@ -1,0 +1,12 @@
+flask
+flask-sqlalchemy
+flask-cors
+scikit-learn==1.8.0
+pandas
+numpy
+joblib
+imbalanced-learn
+groq
+gunicorn
+nltk
+python-dotenv

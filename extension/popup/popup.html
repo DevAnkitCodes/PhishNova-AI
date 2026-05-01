@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            width: 300px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #0f172a;
+            color: white;
+        }
+        .header {
+            background: linear-gradient(90deg, #1e293b, #334155);
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .status-box {
+            background-color: #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 15px 0;
+            border: 1px solid #334155;
+        }
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+            box-shadow: 0 0 8px #22c55e;
+            /* Added pulse animation for extra "Wow" factor in seminar */
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .btn-dash {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            margin-top: 15px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.3s;
+            box-sizing: border-box;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-dash:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2 style="margin:0; font-size: 18px; letter-spacing: 1px;">🛡️ PHISHNOVA AI</h2>
+    </div>
+    <div class="content">
+        <p style="font-size: 14px; color: #94a3b8; margin: 0;">Hybrid Security Engine</p>
+        
+        <div class="status-box">
+            <div style="margin-bottom: 5px;">
+                <span class="status-dot"></span>
+                <span style="font-size: 12px; font-weight: 500;">Stacking Model: Online</span>
+            </div>
+            <div>
+                <span style="font-size: 11px; color: #64748b;">Groq Llama-3: Connected</span>
+            </div>
+        </div>
+
+        <a href="#" class="btn-dash">Open Command Center</a>
+        
+        <p style="font-size: 10px; color: #64748b; margin-top: 20px;">
+            SUIIT Project Group 2026<br>
+            B.Tech Cybersecurity Major Project
+        </p>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

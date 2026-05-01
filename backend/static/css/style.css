@@ -1,0 +1,32 @@
+/* Custom scrollbar for that dark theme look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Custom glow for the table container */
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(37, 99, 235, 0.05);
+}
+
+/* Table row transitions */
+tr {
+    transition: all 0.2s ease;
+}
+
+/* Gradient text for project title */
+.text-blue-500 {
+    background: linear-gradient(to right, #3b82f6, #60a5fa);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
