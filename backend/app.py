@@ -13,13 +13,11 @@ from utils.gpt_logic import get_gpt_explanation
 load_dotenv()
 app = Flask(__name__)
 
-# [RENDER UPDATE] CORS is mandatory for the Chrome extension
-CORS(app) 
+# CORS is mandatory for the Chrome extension
+CORS(app)
 
 # 2. Database setup
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "phishnova_secure_key")  # renamed key
-
-# [RENDER UPDATE] Simplified pathing for SQLite
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "phishnova_secure_key")
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'blacklist.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -30,7 +28,7 @@ class FlaggedEmail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sender = db.Column(db.String(150))
     score = db.Column(db.Integer)
-    explanation = db.Column(db.Text) 
+    explanation = db.Column(db.Text)
     status = db.Column(db.String(100))
     confidence = db.Column(db.String(50), default="High")
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -51,21 +49,17 @@ def load_models():
     except Exception as e:
         print(f"❌ Model load error: {e}")
 
-# Initialize database and model loading automatically
 with app.app_context():
-    db.create_all() 
+    db.create_all()
     load_models()
 
 # 5. Routes
-
 @app.route('/')
 def home():
-    """Redirects base URL to the Dashboard."""
     return render_template('dashboard.html', logs=FlaggedEmail.query.order_by(FlaggedEmail.timestamp.desc()).limit(50).all())
 
 @app.route('/status')
 def status():
-    """API Status endpoint for monitoring."""
     return jsonify({
         "status": "PhishNova AI Hybrid Engine Online",
         "xai_engine": "Groq Llama-3",
@@ -74,7 +68,6 @@ def status():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    """Main endpoint called by the Chrome extension."""
     if model_spam is None:
         return jsonify({"error": "ML Model not initialized"}), 500
 
@@ -95,37 +88,44 @@ def analyze():
         score = int(prob_spam * 100)
     except Exception as e:
         print(f"ML error: {e}")
-        score = 50 
+        score = 50
 
     # ---- Groq AI (Llama-3) explanation ----
     explanation = get_gpt_explanation(gpt_input)
+    explanation_upper = explanation.upper()
 
-    # ---- Hybrid decision logic ----
-    if "appears safe" in explanation.lower():
-        status_text = "AI Verified Safe"
-        final_score = min(score, 15)
-        confidence = "AI Verified"
-    elif score > 80:
-        status_text = "Phishing Detected (High Match)"
+    # ---- STREAMLINED Hybrid Decision Logic ----
+    
+    # 1. Did the ML model catch it immediately? (Score > 80)
+    if score >= 80:
+        status_text = "Phishing Detected (High ML Match)"
         final_score = score
-        confidence = "High"
+        confidence = "High ML"
+        
+    # 2. Did the LLM tag it as a threat?
+    elif "[VERDICT: THREAT]" in explanation_upper:
+        status_text = "AI Verified Threat"
+        final_score = max(score, 85) # Boost score into the danger zone
+        confidence = "AI Verified"
+        
+    # 3. Did the LLM tag it as safe?
+    elif "[VERDICT: SAFE]" in explanation_upper:
+        status_text = "AI Verified Safe"
+        final_score = min(score, 15) # Drop score into the safe zone
+        confidence = "AI Verified"
+        
+    # 4. Fallback (If LLM fails to format correctly or server error)
     else:
-        threat_keywords = ["suspicious", "phishing", "malicious", "mismatch", "fake", "unsafe"]
-        if any(kw in explanation.lower() for kw in threat_keywords):
-            status_text = "AI Verified Threat"
-            final_score = max(score, 85)
-            confidence = "AI Verified"
-        else:
-            status_text = "AI Verified Safe"
-            final_score = min(score, 15)
-            confidence = "AI Verified"
+        status_text = "Ambiguous - Proceed with Caution"
+        final_score = max(score, 50)
+        confidence = "Low"
 
     # Save to Database
     try:
         new_entry = FlaggedEmail(
             sender=sender_id,
             score=final_score,
-            explanation=explanation,
+            explanation=explanation.replace("[VERDICT: THREAT]", "").replace("[VERDICT: SAFE]", "").strip(), # Clean tags before DB
             status=status_text,
             confidence=confidence
         )
@@ -138,14 +138,14 @@ def analyze():
     return jsonify({
         "sender": sender_id,
         "score": final_score,
-        "explanation": explanation,
+        # Strip the backend tags before sending to the Chrome Extension UI
+        "explanation": explanation.replace("[VERDICT: THREAT]", "").replace("[VERDICT: SAFE]", "").strip(),
         "status": status_text,
         "confidence": confidence
     })
 
 @app.route('/dashboard')
 def dashboard():
-    """Legacy route for the dashboard."""
     db_logs = FlaggedEmail.query.order_by(FlaggedEmail.timestamp.desc()).limit(50).all()
     return render_template('dashboard.html', logs=db_logs)
 
