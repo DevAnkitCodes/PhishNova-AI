@@ -27,19 +27,19 @@ def get_gpt_explanation(email_content, api_key=None, is_deep_scan=False):
     final_key = api_key or os.environ.get("GROQ_API_KEY")
 
     if not final_key:
-        return "⚠️ AI analysis unavailable: API key not configured on server."
+        return "[VERDICT: THREAT] AI analysis unavailable: API key not configured on server."
 
     try:
         client = Groq(api_key=final_key)
 
-        # System prompt aligned with your app.py hybrid logic
+        # UPDATED: Zero-Shot Deterministic System Prompt
         system_prompt = (
-            "You are a professional Cybersecurity Analyst. Analyze email text for phishing. "
+            "You are a Senior Cybersecurity Analyst. Analyze email text for phishing, social engineering, and scams. "
             "Follow these STRICT RULES:\n"
-            "1. If no typos and no suspicious links are found, output exactly: 'No suspicious URLs or spelling errors found – appears safe.'\n"
-            "2. If there are spelling mistakes, list them and say they indicate a phishing attempt.\n"
-            "3. If there is a URL, check if it matches the context. If it looks fake (e.g., paypa1.com), say: 'Link [URL] is suspicious – domain mismatch.'\n"
-            "4. Keep the answer under 20 words. No bolding. No extra text."
+            "1. You MUST start your response with exactly one of these two tags: [VERDICT: SAFE] or [VERDICT: THREAT].\n"
+            "2. Evaluate for sophisticated scams (e.g., fake investments, VIP impersonation, urgent credential requests) even if grammar is perfect.\n"
+            "3. After the tag, provide a concise explanation (under 25 words).\n"
+            "4. Do not use bolding or markdown."
         )
 
         chat_completion = client.chat.completions.create(
@@ -47,9 +47,8 @@ def get_gpt_explanation(email_content, api_key=None, is_deep_scan=False):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Analyze this email: {email_content[:800]}"},
             ],
-            # Ensure this model matches your current Groq plan availability
             model="llama-3.3-70b-versatile",
-            temperature=0.1,
+            temperature=0.1, # Keep temperature low for deterministic formatting
             max_tokens=150,
         )
 
@@ -62,9 +61,9 @@ def get_gpt_explanation(email_content, api_key=None, is_deep_scan=False):
         if len(cleaned) > 150:
             cleaned = cleaned[:147] + "..."
 
-        return cleaned if cleaned else "Analysis: Content verified."
+        return cleaned if cleaned else "[VERDICT: SAFE] Analysis: Content verified."
 
     except Exception as e:
         # Log the error for Render logs
         print(f"Groq API Error: {e}")
-        return "🔍 AI analysis offline. Using ML score only."
+        return "[VERDICT: THREAT] AI analysis offline. Treat with caution."
